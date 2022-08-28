@@ -1,4 +1,4 @@
-package io.imwhiteflag.backtest;
+package io.imwhiteflag.backtest.data;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
