@@ -9,7 +9,9 @@ services:
     image: imwhiteflag/backtest-quarkus:native
     mem_limit: 128m
     environment:
-      - QUARKUS_DATASOURCE_URL=jdbc:postgresql://postgres:5432/backtest
+      - BACKTEST_DB_USERNAME=AB
+      - BACKTEST_DB_PASSWORD=B
+      - BACKTEST_DB_URI=C
     ports:
       - "8080:8080"
     depends_on:
