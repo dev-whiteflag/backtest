@@ -50,18 +50,22 @@ services:
       - '--web.console.templates=/usr/share/prometheus/consoles'
     ports:
       - 9090:9090
-#    links:
-#      - pushgateway:pushgateway
-#    depends_on:
-#      - pushgateway
     networks:
       - service
     restart: always
-#    deploy:
-#      placement:
-#        constraints:
-#          - node.hostname == ${HOSTNAME}
 
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    ports:
+      - 9187:9187
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:postgres@postgres:5432/shop?sslmode=true"
+    depends_on:
+      - prometheus
+      - postgres
+    networks:
+      - service
+      
   grafana:
     image: grafana/grafana
     user: "472"
@@ -77,6 +81,14 @@ services:
     networks:
       - service
     restart: always
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+    networks:
+      - service
 
 networks:
   service:

@@ -10,16 +10,17 @@ As credencias de conexão entre aplicações estarão no compose, mas em ambient
 -  `prometheus`: http://localhost:9090/
 -  `grafana`: http://localhost:3000/ _(admin:admin)_
 -  `postgres`: http://localhost:5432
+-  `jaeger-ui`: http://localhost:16686
 
 ### Checklist TODO do Projeto
-- [ ] Especificação do projeto
+- [x] Especificação do projeto
 - [ ] Endpoint para consulta da cotação
 - [ ] Endpoint para listagem das cotações salvas
-- [ ] API documentada no Swagger
-- [ ] Monitoração com Prometheus e Grafana exibindo métricas da API, do DB e da infra
-- [ ] Tracing (Jaeger)
+- [x] API documentada no Swagger
+- [ ] Monitoração com Prometheus e Grafana exibindo métricas da API [x], do DB [x] e da infra [ ]
+- [x] Tracing (Jaeger)
 - [ ] Testes automatizados
-- [ ] Docker + compose
+- [x] Docker + compose
 - [ ] Frontend em Angular 9
 
 ## Especificação do Projeto

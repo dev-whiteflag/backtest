@@ -10,3 +10,6 @@ scrape_configs:
    scrape_interval: 3s
    static_configs:
      - targets: ['HOST:8080']
+  - job_name: postgres-exporter
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
