@@ -9,9 +9,9 @@ services:
     image: imwhiteflag/backtest-quarkus:native
     mem_limit: 128m
     environment:
-      - BACKTEST_DB_USERNAME=AB
-      - BACKTEST_DB_PASSWORD=B
-      - BACKTEST_DB_URI=C
+      - BACKTEST_DB_USERNAME=postgres
+      - BACKTEST_DB_PASSWORD=postgres
+      - BACKTEST_DB_URI=jdbc:postgresql://localhost:5432/backtest
     ports:
       - "8080:8080"
     depends_on:
@@ -26,6 +26,7 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: backtest-quotation
       PGDATA: /data/postgres
     volumes:
       - postgres:/data/postgres
@@ -42,6 +43,7 @@ services:
 
   prometheus:
     image: prom/prometheus:v2.36.2
+    mem_limit: 256m
     volumes:
       - ./prometheus/:/etc/prometheus/
       - prometheus_data:/prometheus
@@ -58,6 +60,7 @@ services:
 
   postgres-exporter:
     image: prometheuscommunity/postgres-exporter
+    mem_limit: 128m
     ports:
       - 9187:9187
     environment:
@@ -70,6 +73,7 @@ services:
       
   grafana:
     image: grafana/grafana
+    mem_limit: 256m
     user: "472"
     depends_on:
       - prometheus
@@ -86,6 +90,7 @@ services:
 
   jaeger:
     image: jaegertracing/all-in-one:latest
+    mem_limit: 256m
     ports:
       - "6831:6831/udp"
       - "16686:16686"

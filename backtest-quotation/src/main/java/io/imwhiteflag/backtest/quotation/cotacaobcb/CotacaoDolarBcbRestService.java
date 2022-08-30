@@ -1,6 +1,6 @@
-package io.imwhiteflag.backtest.data.cotacaobcb;
+package io.imwhiteflag.backtest.quotation.cotacaobcb;
 
-import io.imwhiteflag.backtest.data.cotacaobcb.models.CotacaoDolarBcbRestResponse;
+import io.imwhiteflag.backtest.quotation.cotacaobcb.models.CotacaoDolarBcbRestResponse;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import javax.ws.rs.GET;

@@ -1,4 +1,4 @@
-package io.imwhiteflag.backtest.data.cotacaobcb.models;
+package io.imwhiteflag.backtest.quotation.cotacaobcb.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

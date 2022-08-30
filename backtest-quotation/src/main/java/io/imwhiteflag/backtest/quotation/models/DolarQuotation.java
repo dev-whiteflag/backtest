@@ -1,4 +1,4 @@
-package io.imwhiteflag.backtest.data.models;
+package io.imwhiteflag.backtest.quotation.models;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import lombok.*;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Entity(name = "consulta_cotacao_dolar")
-public class ConsultaCotacaoDolarEntity extends PanacheEntity {
+public class DolarQuotation extends PanacheEntity {
     private UUID id;
     private Instant timestampRequisicao;
     private LocalDate dataCotacao;
