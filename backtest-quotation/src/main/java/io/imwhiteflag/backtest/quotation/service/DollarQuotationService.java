@@ -42,17 +42,18 @@ public class DollarQuotationService {
         var startLocalDate = LocalDate.from(formatter.parse(startDate));
         var finalLocalDate = LocalDate.from(formatter.parse(finalDate));
 
-        var dates = BacktestQuotationUtils.getDatesBetweenRange(startLocalDate, finalLocalDate);
-        List<DollarQuotation> quotations = DollarQuotation.stream("quotationDate in ?1", dates).skip(skip).limit(max)
-                .map(obj -> (DollarQuotation) obj).collect(Collectors.toList());
-        quotations.forEach(quotation -> dates.remove(quotation.getQuotationDate()));
+        var dates = BacktestQuotationUtils.getDatesBetweenRange(startLocalDate, finalLocalDate)
+                .stream().skip(skip).limit(max).collect(Collectors.toList());
+
+         List<DollarQuotation> quotations = DollarQuotation.stream("quotationDate in ?1", dates).map(obj -> (DollarQuotation) obj)
+                 .collect(Collectors.toList());
 
         if (!dates.isEmpty()) {
             var periods = BacktestQuotationUtils.getAllPeriodsInDateList(dates);
 
             periods.forEach(period -> {
                 var response = quotationBCBService.getPeriodDollarQuotation(formatter.format(period.getStartDate()),
-                        formatter.format(period.getEndDate()), "json", 100, 1);
+                        formatter.format(period.getEndDate()), "json", max, 0);
                 quotations.addAll(persistDollarQuotationList(response.getValue()));
             });
         }

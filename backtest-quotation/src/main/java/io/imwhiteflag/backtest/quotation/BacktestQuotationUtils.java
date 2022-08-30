@@ -33,7 +33,7 @@ public class BacktestQuotationUtils {
     }
 
     public static List<LocalDate> getDatesBetweenRange(LocalDate start, LocalDate end) {
-        return start.datesUntil(end).collect(Collectors.toList());
+        return start.datesUntil(end.plusDays(1)).collect(Collectors.toList());
     }
 
     public static List<DatePeriod> getAllPeriodsInDateList(List<LocalDate> dates) {
