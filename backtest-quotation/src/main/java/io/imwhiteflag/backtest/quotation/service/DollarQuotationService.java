@@ -2,6 +2,7 @@ package io.imwhiteflag.backtest.quotation.service;
 
 import io.imwhiteflag.backtest.quotation.models.DollarQuotationBCBItem;
 import io.imwhiteflag.backtest.quotation.models.DollarQuotation;
+import io.quarkus.panache.common.Page;
 import lombok.extern.java.Log;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
@@ -30,6 +31,10 @@ public class DollarQuotationService {
         var response = quotationBCBService.getPeriodDollarQuotation(startDate, finalDate, "json", max, first);
         persistDollarQuotationList(response.getValue());
         return response.getValue();
+    }
+
+    public List<DollarQuotation> getAllSavedDollarQuotation(Integer pageIndex, Integer itemsPerPage) {
+        return DollarQuotation.findAll().page(Page.of(pageIndex, itemsPerPage)).list();
     }
 
     private void persistDollarQuotation(DollarQuotationBCBItem quotation) {

@@ -20,11 +20,19 @@ public class DollarQuotationResponse {
         return new DollarQuotationResponse(item.getDataHoraCotacao(), item.getCotacaoCompra(), item.getCotacaoVenda());
     }
 
+    public static DollarQuotationResponse fromEntity(DollarQuotation item) {
+        return  new DollarQuotationResponse(item.getQuotationDateHour().toString(), item.getBuyPrice(), item.getSellPrice());
+    }
+
     public static List<DollarQuotationResponse> from(List<DollarQuotationBCBItem> items) {
         List<DollarQuotationResponse> list = new ArrayList<>();
-        items.parallelStream().forEach(item -> {
-            list.add(DollarQuotationResponse.from(item));
-        });
+        items.parallelStream().forEach(item -> list.add(DollarQuotationResponse.from(item)));
+        return list;
+    }
+
+    public static List<DollarQuotationResponse> fromEntity(List<DollarQuotation> items) {
+        List<DollarQuotationResponse> list = new ArrayList<>();
+        items.parallelStream().forEach(item -> list.add(DollarQuotationResponse.fromEntity(item)));
         return list;
     }
 }

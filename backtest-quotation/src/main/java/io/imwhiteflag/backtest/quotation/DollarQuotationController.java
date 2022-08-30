@@ -27,9 +27,9 @@ public class DollarQuotationController {
     @Blocking
     @Path("/day")
     @Operation(summary = "Get Dollar Quotation for a Date", description = "Return dollar quotation for a specific date.")
-    @APIResponse(responseCode = "200", description = "Success", content = @Content(schema = @Schema()))
-    @APIResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema()))
-    @APIResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema()))
+    @APIResponse(responseCode = "200", description = "Success", content = @Content(schema = @Schema(implementation = DollarQuotationResponse.class)))
+    @APIResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))
+    @APIResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ServerErrorException.class)))
     @Parameter(name = "Date", in = ParameterIn.QUERY, description = "Quotation date for Querying")
     public Response getDayDollarQuotation(@QueryParam("date") String date) {
         if (!BacktestQuotationUtils.validateString(date)) throw new BadRequestException("Date field is null or empty.");
@@ -46,9 +46,9 @@ public class DollarQuotationController {
     @Blocking
     @Path("/period")
     @Operation(summary = "Get Dollar Quotation for a Period", description = "Return dollar quotation for a specific period.")
-    @APIResponse(responseCode = "200", description = "Success", content = @Content(schema = @Schema()))
-    @APIResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema()))
-    @APIResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema()))
+    @APIResponse(responseCode = "200", description = "Success", content = @Content(schema = @Schema(implementation = DollarQuotationResponse.class)))
+    @APIResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))
+    @APIResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ServerErrorException.class)))
     @Parameter(name = "initialDate", in = ParameterIn.QUERY, description = "Initial quotation day for Querying")
     @Parameter(name = "finalDate", in = ParameterIn.QUERY, description = "Final quotation day for Querying")
     @Parameter(name = "first", in = ParameterIn.QUERY, description = "First quotation index to return")
@@ -77,10 +77,20 @@ public class DollarQuotationController {
     @Path("/listAll")
     @Operation(summary = "Get Dollar Quotation for all saved days",
             description = "Return dollar quotation for all days saved in our database.")
-    @APIResponse(responseCode = "200", description = "Success", content = @Content(schema = @Schema()))
-    @APIResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema()))
-    @APIResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema()))
-    public Response listAllSavedDollarQuotation() {
-        return null;
+    @APIResponse(responseCode = "200", description = "Success", content = @Content(schema = @Schema(implementation = DollarQuotationResponse.class)))
+    @APIResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))
+    @APIResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ServerErrorException.class)))
+    @Parameter(name = "pageIndex", in = ParameterIn.QUERY, description = "Page index for Querying")
+    @Parameter(name = "itemsPerPage", in = ParameterIn.QUERY, description = "Items per Page for Querying")
+    public Response listAllSavedDollarQuotation(@QueryParam("pageIndex") Integer pageIndex,
+                                                @QueryParam("itemsPerPage") Integer itemsPerPage) {
+
+        if (!quotationService.validatePaginationParams(pageIndex, itemsPerPage))
+            throw new BadRequestException("Invalid pagination parameters.");
+
+        var saved = quotationService.getAllSavedDollarQuotation(pageIndex, itemsPerPage);
+        var response = DollarQuotationResponse.fromEntity(saved);
+
+        return Response.ok(response).build();
     }
 }
