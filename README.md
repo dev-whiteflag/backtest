@@ -20,7 +20,7 @@ As credencias de conexão entre aplicações estarão no compose, mas em ambient
 ### Checklist TODO do Projeto
 - [x] Especificação do projeto
 - [ ] Endpoint para consulta da cotação
-- [ ] Endpoint para listagem das cotações salvas
+- [x] Endpoint para listagem das cotações salvas
 - [x] API documentada no Swagger
 - [ ] Monitoração com Prometheus e Grafana exibindo métricas da API [x], do DB [x] e da infra [ ]
 - [x] Tracing (Jaeger)

@@ -36,8 +36,8 @@ public class DollarQuotationController {
         if (!BacktestQuotationUtils.validateDateFormat(date)) throw new BadRequestException("Date field is invalid.");
 
         var correctedDate = BacktestQuotationUtils.addQuotesToString(date);
-        var bcbResponse = quotationService.getDollarQuotationFromBCB(correctedDate);
-        var response = DollarQuotationResponse.from(bcbResponse);
+        var quotation = quotationService.getDollarQuotationFromBCB(correctedDate);
+        var response = DollarQuotationResponse.fromEntity(quotation);
 
         return Response.ok(response).build();
     }
@@ -51,23 +51,23 @@ public class DollarQuotationController {
     @APIResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ServerErrorException.class)))
     @Parameter(name = "initialDate", in = ParameterIn.QUERY, description = "Initial quotation day for Querying")
     @Parameter(name = "finalDate", in = ParameterIn.QUERY, description = "Final quotation day for Querying")
-    @Parameter(name = "first", in = ParameterIn.QUERY, description = "First quotation index to return")
+    @Parameter(name = "skip", in = ParameterIn.QUERY, description = "Number of quotation to skip")
     @Parameter(name = "max", in = ParameterIn.QUERY, description = "Max quotations to return")
     public Response getPeriodDollarQuotation(@QueryParam("initialDate") String initialDate, @QueryParam("finalDate") String finalDate,
-                                             @QueryParam("first") Integer first, @QueryParam("max") Integer max) {
+                                             @QueryParam("skip") Integer skip, @QueryParam("max") Integer max) {
         if (!BacktestQuotationUtils.validateString(initialDate) || !BacktestQuotationUtils.validateString(finalDate))
             throw new BadRequestException("Initial or Final Date field is null or empty.");
 
         if (!BacktestQuotationUtils.validateDateFormat(initialDate) || !BacktestQuotationUtils.validateDateFormat(finalDate))
             throw new BadRequestException("Initial or Final Date field is invalid.");
 
-        if (!quotationService.validatePaginationParams(first, max)) throw new BadRequestException("Invalid pagination parameters.");
+        if (!BacktestQuotationUtils.validatePaginationParams(skip, max)) throw new BadRequestException("Invalid pagination parameters.");
 
         var correctedInitialDate = BacktestQuotationUtils.addQuotesToString(initialDate);
         var correctedFinalDate = BacktestQuotationUtils.addQuotesToString(finalDate);
 
-        var bcbResponse = quotationService.getDollarQuotationFromBCB(correctedInitialDate, correctedFinalDate, first, max);
-        var response = DollarQuotationResponse.from(bcbResponse);
+        var quotations = quotationService.getDollarQuotationFromBCB(correctedInitialDate, correctedFinalDate, skip, max);
+        var response = DollarQuotationResponse.fromEntity(quotations);
 
         return Response.ok(response).build();
     }
@@ -84,8 +84,7 @@ public class DollarQuotationController {
     @Parameter(name = "itemsPerPage", in = ParameterIn.QUERY, description = "Items per Page for Querying")
     public Response listAllSavedDollarQuotation(@QueryParam("pageIndex") Integer pageIndex,
                                                 @QueryParam("itemsPerPage") Integer itemsPerPage) {
-
-        if (!quotationService.validatePaginationParams(pageIndex, itemsPerPage))
+        if (!BacktestQuotationUtils.validatePaginationParams(pageIndex, itemsPerPage))
             throw new BadRequestException("Invalid pagination parameters.");
 
         var saved = quotationService.getAllSavedDollarQuotation(pageIndex, itemsPerPage);
