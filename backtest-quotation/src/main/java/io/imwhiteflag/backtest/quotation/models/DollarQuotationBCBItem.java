@@ -1,4 +1,4 @@
-package io.imwhiteflag.backtest.quotation.cotacaobcb.models;
+package io.imwhiteflag.backtest.quotation.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CotacaoDolarValorBcbRestResponse {
+public class DollarQuotationBCBItem {
     BigDecimal cotacaoCompra;
     BigDecimal cotacaoVenda;
     String dataHoraCotacao;

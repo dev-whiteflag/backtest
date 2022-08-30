@@ -1,4 +1,4 @@
-package io.imwhiteflag.backtest.quotation.cotacaobcb.models;
+package io.imwhiteflag.backtest.quotation.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,6 +9,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CotacaoDolarBcbRestResponse {
-    List<CotacaoDolarValorBcbRestResponse> value;
+public class DollarQuotationBCBRestResponse {
+    List<DollarQuotationBCBItem> value;
 }

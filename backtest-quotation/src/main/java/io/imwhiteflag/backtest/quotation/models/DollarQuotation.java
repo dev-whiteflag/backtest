@@ -15,12 +15,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Entity(name = "consulta_cotacao_dolar")
-public class DolarQuotation extends PanacheEntity {
+@Entity(name = "dollar_quotations")
+public class DollarQuotation extends PanacheEntity {
     private UUID id;
-    private Instant timestampRequisicao;
-    private LocalDate dataCotacao;
-    private BigDecimal valorCompra;
-    private BigDecimal valorVenda;
-    private LocalDateTime dataHoraCotacao;
+    private Instant requestTimestamp;
+    private LocalDate quotationDate;
+    private BigDecimal buyPrice;
+    private BigDecimal sellPrice;
+    private LocalDateTime quotationDateHour;
 }
