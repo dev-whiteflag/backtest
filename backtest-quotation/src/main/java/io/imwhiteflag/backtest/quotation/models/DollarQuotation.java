@@ -3,6 +3,7 @@ package io.imwhiteflag.backtest.quotation.models;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,10 +34,10 @@ public class DollarQuotation extends PanacheEntityBase {
     @Column(name = "quotation_date", updatable = false)
     private LocalDate quotationDate;
 
-    @Column(name = "buy_price")
+    @Column(name = "buy_price", precision = 3, scale = 2)
     private BigDecimal buyPrice;
 
-    @Column(name = "sell_price")
+    @Column(name = "sell_price", precision = 3, scale = 2)
     private BigDecimal sellPrice;
 
     @Column(name = "quotation_date_hour")
