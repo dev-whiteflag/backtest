@@ -2,12 +2,17 @@ package io.imwhiteflag.backtest.quotation;
 
 import io.imwhiteflag.backtest.quotation.models.DatePeriod;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class BacktestQuotationUtils {
@@ -63,5 +68,28 @@ public class BacktestQuotationUtils {
         }
 
         return periodList;
+    }
+
+    public static LocalDate generateRandomLocalDate() {
+        long minDay = LocalDate.of(1970, 1, 1).toEpochDay();
+        long maxDay = LocalDate.now().minusDays(1).toEpochDay();
+        long randomDay = ThreadLocalRandom.current().nextLong(minDay, maxDay);
+        return LocalDate.ofEpochDay(randomDay);
+    }
+
+    public static LocalDate generateRandomLocalDate(LocalDate min, LocalDate max) {
+        long randomDay = ThreadLocalRandom.current().nextLong(min.toEpochDay(), max.toEpochDay());
+        return LocalDate.ofEpochDay(randomDay);
+    }
+
+    public static BigDecimal generateRandomBigDecimal() {
+        var rand = BigDecimal.valueOf(Math.random());
+        rand = rand.setScale(2, RoundingMode.CEILING);
+        return rand;
+    }
+
+    public static LocalDateTime addNowTimeToLocalDate(LocalDate date) {
+        var localTime = LocalTime.now();
+        return LocalDateTime.of(date, localTime);
     }
 }

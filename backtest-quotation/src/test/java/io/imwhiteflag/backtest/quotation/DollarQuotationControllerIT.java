@@ -10,18 +10,14 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
@@ -38,6 +34,8 @@ public class DollarQuotationControllerIT {
     @InjectMock
     @RestClient
     DollarQuotationBCBRestService bcbRestService;
+
+    private final List<DollarQuotation> testDollarQuotations = new ArrayList<>();
 
     @Test
     public void testGetDateDollarQuotationNotSavedThenReturn200() {
@@ -61,14 +59,17 @@ public class DollarQuotationControllerIT {
     @Test
     public void testGetDateDollarQuotationSavedThenReturn200() {
         // Calling API getDateDollarQuotation endpoint
+        var quotation = testDollarQuotations.get(0);
+        var date = formatter.format(quotation.getQuotationDate());
+
         // NOTE: when BigDecimal is used on a h2 database, it loses precision even if is specified.
         given().when()
-                .queryParam("date", "08-18-2022")
+                .queryParam("date", date)
                 .get(CONTROLLER_PATH + "/date")
                 .then().statusCode(200)
-                .body("quotationDateHour", is("2022-08-18T13:09:55.325"))
-                .body("buyPrice", is(Matchers.equalTo(5.18F)))
-                .body("sellPrice", is(Matchers.equalTo(5.18F)));
+                .body("quotationDateHour", is(quotation.getQuotationDateHour().toString()))
+                .body("buyPrice", is(Matchers.equalTo(quotation.getBuyPrice().floatValue())))
+                .body("sellPrice", is(Matchers.equalTo(quotation.getSellPrice().floatValue())));
     }
 
     @Test
@@ -80,21 +81,15 @@ public class DollarQuotationControllerIT {
                 .then().statusCode(400);
     }
 
+    @Test
+    public void testlistAllSavedDollarQuotation() {
+
+    }
+
     @BeforeEach
     @Transactional
     public void createTestingDataOnDatabase() {
-        // Saving data in database before making each request
-        createSingleDateDollarQuotation();
-    }
-
-    private void createSingleDateDollarQuotation() {
-        var date = "08-18-2022";
-        var dateHour = "2022-08-18 13:09:55.325";
-        var buyPrice = BigDecimal.valueOf(5.17670);
-        var sellPrice = BigDecimal.valueOf(5.17730);
-        var quotation = DollarQuotation.builder().requestTimestamp(Instant.now()).buyPrice(buyPrice)
-                .sellPrice(sellPrice).quotationDate(LocalDate.from(formatter.parse(date)))
-                .quotationDateHour(LocalDateTime.from(bcbFormatter.parse(dateHour))).build();
-        quotation.persist();
+        testDollarQuotations.add(DollarQuotationTestFactory.createNewDollarQuotation());
+        testDollarQuotations.add(DollarQuotationTestFactory.createNewDollarQuotation());
     }
 }

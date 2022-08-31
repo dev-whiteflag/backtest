@@ -3,6 +3,7 @@ package io.imwhiteflag.backtest.quotation.service;
 import io.imwhiteflag.backtest.quotation.BacktestQuotationUtils;
 import io.imwhiteflag.backtest.quotation.models.DollarQuotationBCBItem;
 import io.imwhiteflag.backtest.quotation.models.DollarQuotation;
+import io.imwhiteflag.backtest.quotation.models.DollarQuotationBCBRestResponse;
 import io.quarkus.panache.common.Page;
 import lombok.extern.java.Log;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -14,7 +15,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Log
@@ -41,8 +41,8 @@ public class DollarQuotationService {
     }
 
     public List<DollarQuotation> getDollarQuotationFromBCB(String startDate, String finalDate, Integer skip, Integer max) {
-        var startLocalDate = LocalDate.from(bcbDateHourFormat.parse(startDate));
-        var finalLocalDate = LocalDate.from(bcbDateHourFormat.parse(finalDate));
+        var startLocalDate = LocalDate.from(bcbDateFormat.parse(startDate));
+        var finalLocalDate = LocalDate.from(bcbDateFormat.parse(finalDate));
 
         var dates = BacktestQuotationUtils.getDatesBetweenRange(startLocalDate, finalLocalDate)
                 .stream().skip(skip).limit(max).collect(Collectors.toList());
@@ -53,11 +53,17 @@ public class DollarQuotationService {
         if (!dates.isEmpty()) {
             var periods = BacktestQuotationUtils.getAllPeriodsInDateList(dates);
 
-            // WIP: SINGLE DATE IS GOING TO BREAK THIS
-
             periods.forEach(period -> {
-                var response = quotationBCBService.getPeriodDollarQuotation(bcbDateHourFormat.format(period.getStartDate()),
-                        bcbDateHourFormat.format(period.getEndDate()), "json", max, 0);
+                var periodStartDate = BacktestQuotationUtils.addQuotesToString(bcbDateFormat.format(period.getStartDate()));
+                var periodEndDate = BacktestQuotationUtils.addQuotesToString(bcbDateFormat.format(period.getEndDate()));
+                DollarQuotationBCBRestResponse response;
+
+                if (period.getStartDate() == period.getEndDate()) {
+                    response = quotationBCBService.getDayDollarQuotation(periodStartDate, "json");
+                } else {
+                    response = quotationBCBService.getPeriodDollarQuotation(periodStartDate, periodEndDate, "json", max, 0);
+                }
+
                 quotations.addAll(persistDollarQuotationList(response.getValue()));
             });
         }
