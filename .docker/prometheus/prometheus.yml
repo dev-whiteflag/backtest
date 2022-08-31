@@ -1,15 +1,15 @@
 global:
- scrape_interval:     15s 
- evaluation_interval: 15s 
+  scrape_interval: 15s
+  evaluation_interval: 15s
 scrape_configs:
- - job_name: 'prometheus'
-   static_configs:
-     - targets: ['127.0.0.1:9090']
- - job_name: 'quarkus-micrometer'
-   metrics_path: '/q/metrics'
-   scrape_interval: 3s
-   static_configs:
-     - targets: ['HOST:8080']
-  - job_name: postgres-exporter
+  - job_name: 'prometheus'
     static_configs:
-      - targets: ["postgres-exporter:9187"]
+      - targets: [ '127.0.0.1:9090' ]
+  - job_name: 'quarkus-micrometer'
+    metrics_path: '/q/metrics'
+    scrape_interval: 3s
+    static_configs:
+      - targets: [ '127.0.0.1:8080' ]
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: [ "postgres-exporter:9187" ]

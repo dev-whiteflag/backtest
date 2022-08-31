@@ -14,7 +14,7 @@ public class BacktestQuotationUtils {
 
     public static boolean validateDateFormat(String value) {
         try {
-            var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            var formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
             formatter.parse(value);
             return true;
         } catch (DateTimeParseException exception) {

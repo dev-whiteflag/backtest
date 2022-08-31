@@ -11,6 +11,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -25,18 +26,18 @@ public class DollarQuotationController {
 
     @GET
     @Blocking
-    @Path("/day")
+    @Path("/date")
+    @Transactional
     @Operation(summary = "Get Dollar Quotation for a Date", description = "Return dollar quotation for a specific date.")
     @APIResponse(responseCode = "200", description = "Success", content = @Content(schema = @Schema(implementation = DollarQuotationResponse.class)))
     @APIResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))
     @APIResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ServerErrorException.class)))
     @Parameter(name = "Date", in = ParameterIn.QUERY, description = "Quotation date for Querying")
-    public Response getDayDollarQuotation(@QueryParam("date") String date) {
+    public Response getDateDollarQuotation(@QueryParam("date") String date) {
         if (!BacktestQuotationUtils.validateString(date)) throw new BadRequestException("Date field is null or empty.");
         if (!BacktestQuotationUtils.validateDateFormat(date)) throw new BadRequestException("Date field is invalid.");
 
-        var correctedDate = BacktestQuotationUtils.addQuotesToString(date);
-        var quotation = quotationService.getDollarQuotationFromBCB(correctedDate);
+        var quotation = quotationService.getDollarQuotationFromBCB(date);
         var response = DollarQuotationResponse.fromEntity(quotation);
 
         return Response.ok(response).build();

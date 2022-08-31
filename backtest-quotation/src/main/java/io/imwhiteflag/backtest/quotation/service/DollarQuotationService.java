@@ -24,14 +24,16 @@ public class DollarQuotationService {
     @RestClient
     DollarQuotationBCBRestService quotationBCBService;
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    DateTimeFormatter bcbDateHourFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    DateTimeFormatter bcbDateFormat = DateTimeFormatter.ofPattern("MM-dd-yyyy");
 
     public DollarQuotation getDollarQuotationFromBCB(String date) {
-        var localDate = LocalDate.from(formatter.parse(date));
+        var localDate = LocalDate.from(bcbDateFormat.parse(date));
         var quotation = getExistingDollarQuotationByDate(localDate);
 
         if (quotation == null) {
-            var response = quotationBCBService.getDayDollarQuotation(date, "json").getValue().get(0);
+            var correctedDate = BacktestQuotationUtils.addQuotesToString(date);
+            var response = quotationBCBService.getDayDollarQuotation(correctedDate, "json").getValue().get(0);
             quotation = persistDollarQuotation(response);
         }
 
@@ -39,8 +41,8 @@ public class DollarQuotationService {
     }
 
     public List<DollarQuotation> getDollarQuotationFromBCB(String startDate, String finalDate, Integer skip, Integer max) {
-        var startLocalDate = LocalDate.from(formatter.parse(startDate));
-        var finalLocalDate = LocalDate.from(formatter.parse(finalDate));
+        var startLocalDate = LocalDate.from(bcbDateHourFormat.parse(startDate));
+        var finalLocalDate = LocalDate.from(bcbDateHourFormat.parse(finalDate));
 
         var dates = BacktestQuotationUtils.getDatesBetweenRange(startLocalDate, finalLocalDate)
                 .stream().skip(skip).limit(max).collect(Collectors.toList());
@@ -51,9 +53,11 @@ public class DollarQuotationService {
         if (!dates.isEmpty()) {
             var periods = BacktestQuotationUtils.getAllPeriodsInDateList(dates);
 
+            // WIP: SINGLE DATE IS GOING TO BREAK THIS
+
             periods.forEach(period -> {
-                var response = quotationBCBService.getPeriodDollarQuotation(formatter.format(period.getStartDate()),
-                        formatter.format(period.getEndDate()), "json", max, 0);
+                var response = quotationBCBService.getPeriodDollarQuotation(bcbDateHourFormat.format(period.getStartDate()),
+                        bcbDateHourFormat.format(period.getEndDate()), "json", max, 0);
                 quotations.addAll(persistDollarQuotationList(response.getValue()));
             });
         }
@@ -71,12 +75,11 @@ public class DollarQuotationService {
 
     private DollarQuotation persistDollarQuotation(DollarQuotationBCBItem quotation) {
         var timestamp = Instant.now();
-        var ta = formatter.parse(quotation.getDataHoraCotacao());
-        var entity = DollarQuotation.builder().id(UUID.randomUUID()).requestTimestamp(timestamp)
+        var ta = bcbDateHourFormat.parse(quotation.getDataHoraCotacao());
+        var entity = DollarQuotation.builder().requestTimestamp(timestamp)
                 .quotationDate(LocalDate.from(ta)).buyPrice(quotation.getCotacaoCompra()).sellPrice(quotation.getCotacaoVenda())
                 .quotationDateHour(LocalDateTime.from(ta)).build();
-        log.info(entity.getId().toString());
-        entity.persist();
+        DollarQuotation.persist(entity);
         return entity;
     }
 

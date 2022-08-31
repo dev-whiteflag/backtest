@@ -2,16 +2,14 @@ version: '3.9'
 
 services:
 
-  backtest:
-    build:
-      context: .
-      dockerfile: ../backend/src/main/docker/Dockerfile.native
-    image: imwhiteflag/backtest-quarkus:native
+  backtest-quotation:
+    image: imwhiteflag:quotation
     mem_limit: 128m
     environment:
       - BACKTEST_DB_USERNAME=postgres
       - BACKTEST_DB_PASSWORD=postgres
-      - BACKTEST_DB_URI=jdbc:postgresql://localhost:5432/backtest
+      - BACKTEST_DB_URI=jdbc:postgresql://postgres:5432/quotation
+      - BACKTEST_JAEGER_URI=http://jaeger:14268/api/traces
     ports:
       - "8080:8080"
     depends_on:
@@ -24,9 +22,9 @@ services:
     image: postgres
     mem_limit: 128m
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: backtest-quotation
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: quotation
       PGDATA: /data/postgres
     volumes:
       - postgres:/data/postgres
@@ -64,7 +62,7 @@ services:
     ports:
       - 9187:9187
     environment:
-      DATA_SOURCE_NAME: "postgresql://postgres:postgres@postgres:5432/shop?sslmode=true"
+      DATA_SOURCE_NAME: "postgresql://postgres:postgres@postgres:5432/quotation?sslmode=disable"
     depends_on:
       - prometheus
       - postgres
@@ -93,7 +91,11 @@ services:
     mem_limit: 256m
     ports:
       - "6831:6831/udp"
+      - "5775:5775/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
       - "16686:16686"
+      - "14268:14268"
     networks:
       - service
 
