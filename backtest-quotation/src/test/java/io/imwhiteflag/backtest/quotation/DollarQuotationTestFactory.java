@@ -3,7 +3,6 @@ package io.imwhiteflag.backtest.quotation;
 import io.imwhiteflag.backtest.quotation.models.DollarQuotation;
 
 import javax.transaction.Transactional;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

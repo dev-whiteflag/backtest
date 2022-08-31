@@ -34,7 +34,7 @@ public class BacktestQuotationUtils {
     }
 
     public static boolean validatePaginationParams(Integer first, Integer max) {
-        return (first != null && first >= 0) && (max != null && max > 0);
+        return (first != null && first >= 0) && (max != null && max <= 100);
     }
 
     public static List<LocalDate> getDatesBetweenRange(LocalDate start, LocalDate end) {

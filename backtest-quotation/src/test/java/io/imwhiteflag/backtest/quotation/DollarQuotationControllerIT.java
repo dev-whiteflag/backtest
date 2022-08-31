@@ -82,8 +82,25 @@ public class DollarQuotationControllerIT {
     }
 
     @Test
-    public void testlistAllSavedDollarQuotation() {
+    public void testlistAllSavedDollarQuotationThenReturn200() {
+        // Calling API listAllSavedDollarQuotation endpoint
+        given().when()
+                .queryParam("pageIndex", "0")
+                .queryParam("itemsPerPage", "10")
+                .get(CONTROLLER_PATH + "/listAll")
+                .then().statusCode(200)
+                .body("quotations.size()", is(2));
+    }
 
+    @Test
+    public void testlistAllSavedDollarQuotationThenReturn400() {
+        // Calling API listAllSavedDollarQuotation endpoint
+        // This test a hard-coded limit for items per page, this should be a configuration item but will do for now.
+        given().when()
+                .queryParam("pageIndex", "0")
+                .queryParam("itemsPerPage", "101")
+                .get(CONTROLLER_PATH + "/listAll")
+                .then().statusCode(400);
     }
 
     @BeforeEach

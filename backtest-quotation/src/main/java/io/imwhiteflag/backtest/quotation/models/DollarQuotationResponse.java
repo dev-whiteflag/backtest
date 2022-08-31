@@ -6,7 +6,9 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -30,9 +32,11 @@ public class DollarQuotationResponse {
         return list;
     }
 
-    public static List<DollarQuotationResponse> fromEntity(List<DollarQuotation> items) {
+    public static Map<String, List<DollarQuotationResponse>> fromEntity(List<DollarQuotation> items) {
+        Map<String, List<DollarQuotationResponse>> response = new HashMap<>();
         List<DollarQuotationResponse> list = new ArrayList<>();
         items.parallelStream().forEach(item -> list.add(DollarQuotationResponse.fromEntity(item)));
-        return list;
+        response.put("quotations", list);
+        return response;
     }
 }
