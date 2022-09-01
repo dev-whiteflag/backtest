@@ -32,7 +32,7 @@ public class DollarQuotationController {
     @APIResponse(responseCode = "200", description = "Success", content = @Content(schema = @Schema(implementation = DollarQuotationResponse.class)))
     @APIResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))
     @APIResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ServerErrorException.class)))
-    @Parameter(name = "Date", in = ParameterIn.QUERY, description = "Quotation date for Querying")
+    @Parameter(name = "date", in = ParameterIn.QUERY, description = "Quotation date for Querying")
     public Response getDateDollarQuotation(@QueryParam("date") String date) {
         if (!BacktestQuotationUtils.validateString(date)) throw new BadRequestException("Date field is null or empty.");
         if (!BacktestQuotationUtils.validateDateFormat(date)) throw new BadRequestException("Date field is invalid.");

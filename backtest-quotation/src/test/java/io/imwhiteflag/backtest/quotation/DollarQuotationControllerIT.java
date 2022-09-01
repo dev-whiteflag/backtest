@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 
 @QuarkusTest
 @QuarkusTestResource(H2DatabaseTestResource.class)
@@ -68,7 +68,7 @@ public class DollarQuotationControllerIT {
                 .queryParam("date", date)
                 .get(CONTROLLER_PATH + "/date")
                 .then().statusCode(200)
-                .body("quotationDateHour", is(quotation.getQuotationDateHour().toString()))
+                .body("quotationDateHour", is(quotation.getQuotationDateHour().toString())) // TODO: format using iso
                 .body("buyPrice", is(Matchers.equalTo(quotation.getBuyPrice().floatValue())))
                 .body("sellPrice", is(Matchers.equalTo(quotation.getSellPrice().floatValue())));
     }
@@ -83,19 +83,32 @@ public class DollarQuotationControllerIT {
     }
 
     @Test
-    public void testGetPeriodDollarQuotationMockThenReturn200() {
+    public void testGetPeriodDollarQuotationMockAndSavedThenReturn200() {
+        // Mocking getPeriodDollarQuotation and getDayDollarQuotation
+        var periodResponseItemList = List.of(DollarQuotationTestFactory.fromBCBToDollarQuotation(
+                DollarQuotationTestFactory.createNewDollarQuotationWithoutPersist("08-26-2022")), DollarQuotationTestFactory.fromBCBToDollarQuotation(
+                DollarQuotationTestFactory.createNewDollarQuotationWithoutPersist("08-27-2022")));
+        var dayResponseItem = List.of(DollarQuotationTestFactory.fromBCBToDollarQuotation(
+                DollarQuotationTestFactory.createNewDollarQuotationWithoutPersist("08-24-2022")));
+
+        Mockito.when(bcbRestService.getDayDollarQuotation("'08-24-2022'", "json")).thenReturn(
+                new DollarQuotationBCBRestResponse(dayResponseItem));
+        Mockito.when(bcbRestService.getPeriodDollarQuotation("'08-26-2022'", "'08-27-2022'", "json",100,
+                0)).thenReturn(new DollarQuotationBCBRestResponse(periodResponseItemList));
+
         // Building query params
         Map<String, Object> params = new HashMap<>();
-        params.put("initialDate", "08-23-2022");
-        params.put("finalDate", "08-30-2022");
+        params.put("initialDate", "08-24-2022");
+        params.put("finalDate", "08-27-2022");
         params.put("skip", 0);
         params.put("max", 100);
 
         // Calling API getPeriodDollarQuotation endpoint
         given().when()
                 .queryParams(params)
-                .get(CONTROLLER_PATH + "/period")
-                .then().statusCode(200);
+                .get(CONTROLLER_PATH + "/period").peek()
+                .then().statusCode(200)
+                .body("quotations.size()", is(4)); // TODO: look into why there's ELEVEN
     }
 
     @Test
@@ -138,7 +151,7 @@ public class DollarQuotationControllerIT {
                 .queryParam("itemsPerPage", "10")
                 .get(CONTROLLER_PATH + "/listAll")
                 .then().statusCode(200)
-                .body("quotations.size()", is(2));
+                .body("quotations.size()", is(3));
     }
 
     @Test
@@ -157,5 +170,6 @@ public class DollarQuotationControllerIT {
     public void createTestingDataOnDatabase() {
         testDollarQuotations.add(DollarQuotationTestFactory.createNewDollarQuotation());
         testDollarQuotations.add(DollarQuotationTestFactory.createNewDollarQuotation());
+        testDollarQuotations.add(DollarQuotationTestFactory.createNewDollarQuotation("08-25-2022"));
     }
 }

@@ -39,7 +39,7 @@ public class BacktestQuotationUtils {
     }
 
     public static List<LocalDate> getDatesBetweenRange(LocalDate start, LocalDate end) {
-        return start.datesUntil(end).collect(Collectors.toList());
+        return start.datesUntil(end.plusDays(1)).collect(Collectors.toList());
     }
 
     public static List<DatePeriod> getAllPeriodsInDateList(List<LocalDate> dates) {
@@ -55,6 +55,9 @@ public class BacktestQuotationUtils {
                 if (prev.plusDays(1).isEqual(current)) {
                     period.setEndDate(current);
                 } else {
+                    if (period.getEndDate() == null) {
+                        period.setEndDate(period.getStartDate());
+                    }
                     periodList.add(period);
                     period = new DatePeriod(current, null);
                 }
@@ -62,9 +65,6 @@ public class BacktestQuotationUtils {
             prev = current;
 
             if (i == dates.size() - 1) {
-                if (period.getEndDate() == null) {
-                    period.setEndDate(period.getStartDate());
-                }
                 periodList.add(period);
             }
         }

@@ -49,8 +49,8 @@ public class DollarQuotationService {
         var dates = BacktestQuotationUtils.getDatesBetweenRange(startLocalDate, finalLocalDate)
                 .stream().skip(skip).limit(max).sorted(new DateComparator()).collect(Collectors.toList());
 
-        List<DollarQuotation> quotations = DollarQuotation.stream("quotationDate in ?1", dates).map(obj -> (DollarQuotation) obj)
-                 .collect(Collectors.toList());
+        List<DollarQuotation> quotations = getExistingPeriodDollarQuotationByDates(dates);
+        quotations.forEach(quotation -> dates.remove(quotation.getQuotationDate()));
 
         if (!dates.isEmpty()) {
             var periods = BacktestQuotationUtils.getAllPeriodsInDateList(dates);
@@ -85,16 +85,24 @@ public class DollarQuotationService {
     public DollarQuotation persistDollarQuotation(DollarQuotationBCBItem quotation) {
         var timestamp = Instant.now();
         var ta = bcbDateHourFormat.parse(quotation.getDataHoraCotacao());
-        var entity = DollarQuotation.builder().requestTimestamp(timestamp)
-                .quotationDate(LocalDate.from(ta)).buyPrice(quotation.getCotacaoCompra()).sellPrice(quotation.getCotacaoVenda())
-                .quotationDateHour(LocalDateTime.from(ta)).build();
-        DollarQuotation.persist(entity);
-        return entity;
+        var existing = DollarQuotation.find("quotationDate", LocalDate.from(ta)).firstResult();
+
+        if (existing == null) {
+            existing = DollarQuotation.builder().requestTimestamp(timestamp)
+                    .quotationDate(LocalDate.from(ta)).buyPrice(quotation.getCotacaoCompra()).sellPrice(quotation.getCotacaoVenda())
+                    .quotationDateHour(LocalDateTime.from(ta)).build();
+            DollarQuotation.persist(existing);
+        }
+
+        return (DollarQuotation) existing;
     }
 
     private List<DollarQuotation> persistDollarQuotationList(List<DollarQuotationBCBItem> list) {
         var quotations = new ArrayList<DollarQuotation>();
         list.forEach(item -> quotations.add(persistDollarQuotation(item)));
         return quotations;
+    }
+    private List<DollarQuotation> getExistingPeriodDollarQuotationByDates(List<LocalDate> dates) {
+        return DollarQuotation.find("quotationDate in ?1", dates).list();
     }
 }
