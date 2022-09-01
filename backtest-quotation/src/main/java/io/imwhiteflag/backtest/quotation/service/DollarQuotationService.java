@@ -1,6 +1,7 @@
 package io.imwhiteflag.backtest.quotation.service;
 
 import io.imwhiteflag.backtest.quotation.BacktestQuotationUtils;
+import io.imwhiteflag.backtest.quotation.models.DateComparator;
 import io.imwhiteflag.backtest.quotation.models.DollarQuotationBCBItem;
 import io.imwhiteflag.backtest.quotation.models.DollarQuotation;
 import io.imwhiteflag.backtest.quotation.models.DollarQuotationBCBRestResponse;
@@ -9,6 +10,7 @@ import lombok.extern.java.Log;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.transaction.Transactional;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,7 +26,7 @@ public class DollarQuotationService {
     @RestClient
     DollarQuotationBCBRestService quotationBCBService;
 
-    DateTimeFormatter bcbDateHourFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    DateTimeFormatter bcbDateHourFormat = BacktestQuotationUtils.getVariableISODateTimeFormatter();
     DateTimeFormatter bcbDateFormat = DateTimeFormatter.ofPattern("MM-dd-yyyy");
 
     public DollarQuotation getDollarQuotationFromBCB(String date) {
@@ -45,9 +47,9 @@ public class DollarQuotationService {
         var finalLocalDate = LocalDate.from(bcbDateFormat.parse(finalDate));
 
         var dates = BacktestQuotationUtils.getDatesBetweenRange(startLocalDate, finalLocalDate)
-                .stream().skip(skip).limit(max).collect(Collectors.toList());
+                .stream().skip(skip).limit(max).sorted(new DateComparator()).collect(Collectors.toList());
 
-         List<DollarQuotation> quotations = DollarQuotation.stream("quotationDate in ?1", dates).map(obj -> (DollarQuotation) obj)
+        List<DollarQuotation> quotations = DollarQuotation.stream("quotationDate in ?1", dates).map(obj -> (DollarQuotation) obj)
                  .collect(Collectors.toList());
 
         if (!dates.isEmpty()) {
@@ -79,7 +81,8 @@ public class DollarQuotationService {
         return DollarQuotation.find("quotationDate", date).firstResult();
     }
 
-    private DollarQuotation persistDollarQuotation(DollarQuotationBCBItem quotation) {
+    @Transactional
+    public DollarQuotation persistDollarQuotation(DollarQuotationBCBItem quotation) {
         var timestamp = Instant.now();
         var ta = bcbDateHourFormat.parse(quotation.getDataHoraCotacao());
         var entity = DollarQuotation.builder().requestTimestamp(timestamp)

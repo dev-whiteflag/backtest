@@ -64,10 +64,7 @@ public class DollarQuotationController {
 
         if (!BacktestQuotationUtils.validatePaginationParams(skip, max)) throw new BadRequestException("Invalid pagination parameters.");
 
-        var correctedInitialDate = BacktestQuotationUtils.addQuotesToString(initialDate);
-        var correctedFinalDate = BacktestQuotationUtils.addQuotesToString(finalDate);
-
-        var quotations = quotationService.getDollarQuotationFromBCB(correctedInitialDate, correctedFinalDate, skip, max);
+        var quotations = quotationService.getDollarQuotationFromBCB(initialDate, finalDate, skip, max);
         var response = DollarQuotationResponse.fromEntity(quotations);
 
         return Response.ok(response).build();

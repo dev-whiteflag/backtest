@@ -18,7 +18,9 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
@@ -29,7 +31,6 @@ public class DollarQuotationControllerIT {
 
     private static final String CONTROLLER_PATH = "/quotation";
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
-    private final DateTimeFormatter bcbFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
     @InjectMock
     @RestClient
@@ -38,7 +39,7 @@ public class DollarQuotationControllerIT {
     private final List<DollarQuotation> testDollarQuotations = new ArrayList<>();
 
     @Test
-    public void testGetDateDollarQuotationNotSavedThenReturn200() {
+    public void testGetDateDollarQuotationMockThenReturn200() {
         // Mocking getDayDollarQuotation
         var buyPrice = BigDecimal.valueOf(5.17670);
         var sellPrice = BigDecimal.valueOf(5.17730);
@@ -78,6 +79,54 @@ public class DollarQuotationControllerIT {
         given().when()
                 .queryParam("date", "")
                 .get(CONTROLLER_PATH + "/date")
+                .then().statusCode(400);
+    }
+
+    @Test
+    public void testGetPeriodDollarQuotationMockThenReturn200() {
+        // Building query params
+        Map<String, Object> params = new HashMap<>();
+        params.put("initialDate", "08-23-2022");
+        params.put("finalDate", "08-30-2022");
+        params.put("skip", 0);
+        params.put("max", 100);
+
+        // Calling API getPeriodDollarQuotation endpoint
+        given().when()
+                .queryParams(params)
+                .get(CONTROLLER_PATH + "/period")
+                .then().statusCode(200);
+    }
+
+    @Test
+    public void testGetPeriodDollarQuotationSavedThenReturn200() {
+        // Building query params
+        Map<String, Object> params = new HashMap<>();
+        params.put("initialDate", "asdas");
+        params.put("finalDate", "sadas");
+        params.put("skip", 0);
+        params.put("max", 1);
+
+        // Calling API getPeriodDollarQuotation endpoint
+        given().when()
+                .queryParams(params)
+                .get(CONTROLLER_PATH + "/period")
+                .then().statusCode(400);
+    }
+
+    @Test
+    public void testGetPeriodDollarQuotationThenReturn400() {
+        // Building query params
+        Map<String, Object> params = new HashMap<>();
+        params.put("initialDate", "asdas");
+        params.put("finalDate", "sadas");
+        params.put("skip", 0);
+        params.put("max", 1);
+
+        // Calling API getPeriodDollarQuotation endpoint
+        given().when()
+                .queryParams(params)
+                .get(CONTROLLER_PATH + "/period")
                 .then().statusCode(400);
     }
 

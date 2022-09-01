@@ -12,7 +12,7 @@ public class DollarQuotationTestFactory {
 
     @Transactional
     public static DollarQuotation createNewDollarQuotation() {
-        final DateTimeFormatter bcbFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        final DateTimeFormatter bcbFormatter = BacktestQuotationUtils.getVariableISODateTimeFormatter();
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
 
         var randomLocalDate = BacktestQuotationUtils.generateRandomLocalDate();

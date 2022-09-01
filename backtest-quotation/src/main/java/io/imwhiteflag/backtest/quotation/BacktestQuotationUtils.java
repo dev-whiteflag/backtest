@@ -8,8 +8,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -38,33 +39,34 @@ public class BacktestQuotationUtils {
     }
 
     public static List<LocalDate> getDatesBetweenRange(LocalDate start, LocalDate end) {
-        return start.datesUntil(end.plusDays(1)).collect(Collectors.toList());
+        return start.datesUntil(end).collect(Collectors.toList());
     }
 
     public static List<DatePeriod> getAllPeriodsInDateList(List<LocalDate> dates) {
         List<DatePeriod> periodList = new ArrayList<>();
-        DatePeriod period = null;
-        LocalDate prevDate = null;
+        DatePeriod period = new DatePeriod();
+        LocalDate prev = null;
 
-        for (var date : dates) {
-            if (prevDate == null) {
-                prevDate = date;
-                period = new DatePeriod();
-                period.setStartDate(prevDate);
+        for (int i = 0; i < dates.size(); i++) {
+            var current = dates.get(i);
+            if (prev == null) {
+                period.setStartDate(current);
             } else {
-                if (ChronoUnit.DAYS.between(prevDate, date) > 1) {
-                    period.setEndDate(prevDate);
+                if (prev.plusDays(1).isEqual(current)) {
+                    period.setEndDate(current);
+                } else {
                     periodList.add(period);
-                    period = new DatePeriod();
-                    period.setStartDate(date);
+                    period = new DatePeriod(current, null);
                 }
-                prevDate = date;
             }
-        }
+            prev = current;
 
-        if (period != null && period.getEndDate() == null) {
-            period.setEndDate(period.getStartDate());
-            periodList.add(period);
+            if (i == dates.size() - 1) {
+                if (period.getEndDate() == null) {
+                    period.setEndDate(period.getStartDate());
+                }
+                periodList.add(period);
+            }
         }
 
         return periodList;
@@ -91,5 +93,11 @@ public class BacktestQuotationUtils {
     public static LocalDateTime addNowTimeToLocalDate(LocalDate date) {
         var localTime = LocalTime.now();
         return LocalDateTime.of(date, localTime);
+    }
+
+    public static DateTimeFormatter getVariableISODateTimeFormatter() {
+        return new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm:ss")
+                .appendFraction(ChronoField.MILLI_OF_SECOND, 2, 3, true)
+                .toFormatter();
     }
 }
