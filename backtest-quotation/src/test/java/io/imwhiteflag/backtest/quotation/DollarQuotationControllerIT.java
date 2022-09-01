@@ -107,7 +107,7 @@ public class DollarQuotationControllerIT {
                 .queryParams(params)
                 .get(CONTROLLER_PATH + "/period").peek()
                 .then().statusCode(200)
-                .body("quotations.size()", is(4)); // TODO: look into why there's ELEVEN
+                .body("quotations.size()", is(4));
     }
 
     @Test

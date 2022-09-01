@@ -2,7 +2,14 @@
 > backtest é um projeto feito para testar uma stack de backend normalmente usada com microserviços.
 
 ## Getting Started
-Para começar, é só executar o `docker compose up` dentro da pasta `.docker`. Isso ira provisionar os containers necessários para executar a applicação feita em Quarkus.
+
+Para executar o projeto todo, precisamos gerar os containers para o `quotation` e o `app`.
+
+- Para o `quotation`, primeiro entre na pasta raiz do serviço e execute o `mvn package`; Logo em seguida, crie a imagem utilizando o comando `docker build -f ./src/main/docker/Dockerfile.jvm -t imwhiteflag/quotation:1.0.0 .`. Após ser executado, essa imagem estará salva localmente e será utilizada no compose.
+
+- Para o `app`, primeiro entre na pasta raiz da aplicação e execute o `npm run build --prod`; Logo em seguida crie a imagem do mesmo jeito que anteriormente, utilizando o `docker build -f ./Dockerfile -t imwhiteflag/quotation-app:0.1.0 .`.
+
+Agora que as imagens faltando foram criadas, precisa entrar na pasta `./docker` e nela executar o `docker compose up, esse comando ira criar todos os containers necessários para a aplicação.
 
 ### Módulos do Projeto
 
@@ -12,6 +19,7 @@ Para começar, é só executar o `docker compose up` dentro da pasta `.docker`. 
 ### URLs e Credenciais
 As credencias de conexão entre aplicações estarão no compose, mas em ambientes não-locais é NECESSÁRIO ser definido nas váraiveis de ambiente e/ou no k8s (ou equivalente na infraestrutura usada).
 
+-  `quotation`: http://localhost:8080/
 -  `prometheus`: http://localhost:9090/
 -  `grafana`: http://localhost:3000/ _(admin:admin)_
 -  `postgres`: http://localhost:5432
@@ -22,9 +30,9 @@ As credencias de conexão entre aplicações estarão no compose, mas em ambient
 - [x] Endpoint para consulta da cotação
 - [x] Endpoint para listagem das cotações salvas
 - [x] API documentada no Swagger
-- [ ] Monitoração com Prometheus e Grafana exibindo métricas da API [x], do DB [x] e da infra [ ]
+- [x] Monitoração com Prometheus e Grafana exibindo métricas da API [x], do DB [x] e da infra [ ]
 - [x] Tracing (Jaeger)
-- [ ] Testes automatizados
+- [x] Testes automatizados
 - [x] Docker + compose
 - [ ] Frontend em Angular 9
 

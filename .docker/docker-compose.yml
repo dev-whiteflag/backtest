@@ -3,7 +3,7 @@ version: '3.9'
 services:
 
   backtest-quotation:
-    image: imwhiteflag:quotation
+    image: imwhiteflag/quotation:1.0.0
     mem_limit: 128m
     environment:
       - BACKTEST_DB_USERNAME=postgres
@@ -15,6 +15,16 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - service
+
+  backtest-app:
+    image: imwhiteflag/quotation-app:0.1.0
+    mem_limit: 256m
+    ports:
+      - "80:80"
+    depends_on:
+      - backtest-quotation
     networks:
       - service
     
