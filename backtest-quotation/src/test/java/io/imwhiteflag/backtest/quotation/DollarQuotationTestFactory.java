@@ -20,11 +20,15 @@ public class DollarQuotationTestFactory {
         var localDateTime = BacktestQuotationUtils.addNowTimeToLocalDate(randomLocalDate);
         var buyPrice = BacktestQuotationUtils.generateRandomBigDecimal();
         var sellPrice = BacktestQuotationUtils.generateRandomBigDecimal();
+        var quotation = DollarQuotation.find("quotationDate", randomLocalDate).firstResult();
 
-        var quotation = DollarQuotation.builder().requestTimestamp(Instant.now()).buyPrice(buyPrice)
-                .sellPrice(sellPrice).quotationDate(randomLocalDate).quotationDateHour(localDateTime).build();
-        quotation.persist();
-        return quotation;
+        if (quotation == null) {
+            quotation = DollarQuotation.builder().requestTimestamp(Instant.now()).quotationDate(randomLocalDate)
+                    .buyPrice(buyPrice).sellPrice(sellPrice).quotationDateHour(localDateTime).build();
+            DollarQuotation.persist(quotation);
+        }
+
+        return (DollarQuotation) quotation;
     }
 
     @Transactional
@@ -33,11 +37,15 @@ public class DollarQuotationTestFactory {
         var localDateTime = BacktestQuotationUtils.addNowTimeToLocalDate(randomLocalDate);
         var buyPrice = BacktestQuotationUtils.generateRandomBigDecimal();
         var sellPrice = BacktestQuotationUtils.generateRandomBigDecimal();
+        var quotation = DollarQuotation.find("quotationDate", randomLocalDate).firstResult();
 
-        var quotation = DollarQuotation.builder().requestTimestamp(Instant.now()).buyPrice(buyPrice)
-                .sellPrice(sellPrice).quotationDate(randomLocalDate).quotationDateHour(localDateTime).build();
-        quotation.persist();
-        return quotation;
+        if (quotation == null) {
+            quotation = DollarQuotation.builder().requestTimestamp(Instant.now()).quotationDate(randomLocalDate)
+                    .buyPrice(buyPrice).sellPrice(sellPrice).quotationDateHour(localDateTime).build();
+            DollarQuotation.persist(quotation);
+        }
+
+        return (DollarQuotation) quotation;
     }
 
     public static DollarQuotation createNewDollarQuotationWithoutPersist(String stringDate) {
